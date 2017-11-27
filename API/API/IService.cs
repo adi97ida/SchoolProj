@@ -5,6 +5,8 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace API
 {
@@ -14,34 +16,25 @@ namespace API
     {
 
         [OperationContract]
-        string GetData(int value);
+        string SaveData(DataPack data);
 
-        [OperationContract]
-        CompositeType GetDataUsingDataContract(CompositeType composite);
-
-        // TODO: Add your service operations here
     }
-
-
-    // Use a data contract as illustrated in the sample below to add composite types to service operations.
     [DataContract]
-    public class CompositeType
+    public class DataPack
     {
-        bool boolValue = true;
-        string stringValue = "Hello ";
+        [DataMember]
+        public string Name;
 
         [DataMember]
-        public bool BoolValue
-        {
-            get { return boolValue; }
-            set { boolValue = value; }
-        }
+        public int IR1;
 
         [DataMember]
-        public string StringValue
-        {
-            get { return stringValue; }
-            set { stringValue = value; }
-        }
+        public int IR2;
+
+        [DataMember]
+        public int Humidity;
+
+        [DataMember]
+        public double Temperature;
     }
 }
