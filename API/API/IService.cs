@@ -17,6 +17,8 @@ namespace API
 
         [OperationContract]
         string SaveData(DataPack data);
+        [OperationContract]
+        List<DataPack> GetData();
 
     }
     [DataContract]
@@ -36,5 +38,7 @@ namespace API
 
         [DataMember]
         public double Temperature;
+        [DataMember]
+        public DateTime CurrentTime;
     }
 }

@@ -16,6 +16,45 @@ namespace API
     {
         public string connection = "Server=tcp:monitoringsys.database.windows.net,1433;Initial Catalog=MonitoringSystemm;Persist Security Info=False;User ID=sysadmin;Password=Admin123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
 
+        public List<DataPack> GetData()
+        {
+            List < DataPack> result =null;
+            const string selectString = "select * from dbo.sensor_data";
+            using (SqlConnection sqlServer = new SqlConnection(connection))
+            {
+                    using (SqlCommand selectCommand = new SqlCommand(selectString, sqlServer))
+                    {
+                    try
+                    {
+                        sqlServer.Open();
+                        var reader = selectCommand.ExecuteReader();
+                        result = new List<DataPack>();
+                        DataPack pack;
+                        while (reader.Read())
+                        {
+                            pack = new DataPack();
+                            for (int i = 0; i < 6; i++)
+                            {
+                                var data = reader.GetSqlValue(i);
+                            }
+                            pack.CurrentTime = reader.GetDateTime(0);
+                            pack.IR1 = reader.GetInt32(1);
+                            pack.IR1 = reader.GetInt32(2);
+                            pack.Temperature = reader.GetDouble(3);
+                            pack.Humidity = reader.GetInt32(4);
+                            pack.Name = reader.GetString(5);
+                            result.Add(pack);
+                        }
+                        return result;
+                    }
+                    catch (Exception ex)
+                    {
+                        return result;
+                    }
+                }
+            }
+        }
+
         public string SaveData(DataPack data)
         {
             const string insert = "insert into dbo.sensor_data(CurrentTime, IRSensor1, IRSensor2, TempSensor, HumiditySensor, Name) values (@CurrentTime, @IRSensor1, @IRSensor2, @TempSensor, @HumiditySensor, @Name)";
