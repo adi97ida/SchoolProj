@@ -18,7 +18,7 @@ namespace API
         [OperationContract]
         string SaveData(DataPack data);
         [OperationContract]
-        List<DataPack> GetData();
+        List<DataPack> GetData(DateTime? dateStart, DateTime? dateEnd);
 
     }
     [DataContract]

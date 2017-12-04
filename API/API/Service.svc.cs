@@ -16,14 +16,14 @@ namespace API
     {
         public string connection = "Server=tcp:monitoringsys.database.windows.net,1433;Initial Catalog=MonitoringSystemm;Persist Security Info=False;User ID=sysadmin;Password=Admin123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
 
-        public List<DataPack> GetData()
+        public List<DataPack> GetData(DateTime? dateStart, DateTime? dateEnd)
         {
-            List < DataPack> result =null;
-            const string selectString = "select * from dbo.sensor_data";
+            List<DataPack> result = null;
+            string selectString = (dateStart != null || dateEnd != null)? $"select * from dbo.sensor_data where CurrentTime >= '{dateStart ?? new DateTime(2000,1,1)}' AND CurrentTime <= '{dateEnd ?? DateTime.Now}' order by CurrentTime asc": "select * from dbo.sensor_data order by CurrentTime asc";
             using (SqlConnection sqlServer = new SqlConnection(connection))
             {
-                    using (SqlCommand selectCommand = new SqlCommand(selectString, sqlServer))
-                    {
+                using (SqlCommand selectCommand = new SqlCommand(selectString, sqlServer))
+                {
                     try
                     {
                         sqlServer.Open();
@@ -33,10 +33,6 @@ namespace API
                         while (reader.Read())
                         {
                             pack = new DataPack();
-                            for (int i = 0; i < 6; i++)
-                            {
-                                var data = reader.GetSqlValue(i);
-                            }
                             pack.CurrentTime = reader.GetDateTime(0);
                             pack.IR1 = reader.GetInt32(1);
                             pack.IR1 = reader.GetInt32(2);
@@ -45,15 +41,15 @@ namespace API
                             pack.Name = reader.GetString(5);
                             result.Add(pack);
                         }
-                        return result;
                     }
                     catch (Exception ex)
                     {
-                        return result;
                     }
                 }
+                return result;
             }
         }
+        
 
         public string SaveData(DataPack data)
         {
