@@ -7,6 +7,7 @@ using System.ServiceModel.Web;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using APIXULib;
 
 namespace API
 {
@@ -19,6 +20,8 @@ namespace API
         string SaveData(DataPack data);
         [OperationContract]
         List<DataPack> GetData(DateTime? dateStart, DateTime? dateEnd);
+        [OperationContract]
+        WeatherModel GetWeather(string city, MethodType type, Days? day);
 
     }
     [DataContract]

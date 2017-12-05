@@ -7,6 +7,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using APIXULib;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace API
 {
@@ -44,6 +47,7 @@ namespace API
                     }
                     catch (Exception ex)
                     {
+                        
                     }
                 }
                 return result;
@@ -80,9 +84,25 @@ namespace API
             }
             return "ERROR";
         }
+        public WeatherModel GetWeather(string city, MethodType type, Days? day)
+        {
 
+            Days days = Days.One;
+            string key = "b244896d727f4cf28aa113256170412";
+
+            if (!day.HasValue)
+                days = (Days)day;
+
+            WeatherModel weather = new WeatherModel();
+            IRepository repo = new Repository();
+
+            if (type == MethodType.Current)
+                return weather = repo.GetWeatherData(key, GetBy.CityName, city);
+            else
+                return weather = repo.GetWeatherData(key, GetBy.CityName, city, days);
+            
+        }
         
-
 
 
     }
