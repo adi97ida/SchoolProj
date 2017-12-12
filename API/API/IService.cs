@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
+using System.Security.Cryptography;
 using System.ServiceModel.Web;
 using System.Text;
 using System.Threading;
@@ -19,9 +20,13 @@ namespace API
         [OperationContract]
         string SaveData(DataPack data);
         [OperationContract]
-        List<DataPack> GetData(DateTime? dateStart, DateTime? dateEnd);
+        List<DataPack> GetDataByPeriod(DateTime? dateStart, DateTime? dateEnd);
         [OperationContract]
         WeatherModel GetWeather(string city, MethodType type, Days? day);
+        [OperationContract]
+        Staff Login(string username, string password);
+        [OperationContract]
+        List<Customers24H> CustomersInsidePer24H(DateTime dateStart, DateTime dateEnd);
 
     }
     [DataContract]
@@ -41,6 +46,27 @@ namespace API
 
         [DataMember]
         public double Temperature;
+        [DataMember]
+        public DateTime CurrentTime;
+       
+    }
+    [DataContract]
+    public class Staff
+    {
+        [DataMember]
+        public string Username;
+        [DataMember]
+        public string Password;
+        [DataMember]
+        public string Full_Name;
+        [DataMember]
+        public string Email;
+    }
+    [DataContract]
+    public class Customers24H
+    {
+        [DataMember]
+        public int PeopleInside;
         [DataMember]
         public DateTime CurrentTime;
     }
