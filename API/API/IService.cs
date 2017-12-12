@@ -29,7 +29,15 @@ namespace API
         List<Customers24H> CustomersInsidePer24H(DateTime dateStart, DateTime dateEnd);
         [OperationContract]
         string CreateStaffUser(Staff new_user);
-        
+        [OperationContract]
+        Discount EditDiscount(Discount discount);
+        [OperationContract]
+        string RemoveDiscount(string id);
+        [OperationContract]
+        List<Discount> GetDiscounts();
+
+
+
 
     }
     [DataContract]
@@ -72,5 +80,17 @@ namespace API
         public int PeopleInside;
         [DataMember]
         public DateTime CurrentTime;
+    }
+    [DataContract]
+    public class Discount
+    {
+        [DataMember]
+        public string Title;
+        [DataMember]
+        public string Description;
+        [DataMember]
+        public DateTime DateValid;
+        [DataMember]
+        public Double Value;
     }
 }
