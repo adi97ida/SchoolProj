@@ -134,7 +134,7 @@ namespace API
             Days days = Days.One;
             string key = "b244896d727f4cf28aa113256170412";
 
-            if (!day.HasValue)
+            if ((day != null)&&(!day.HasValue))
                 days = (Days)day;
 
             WeatherModel weather = new WeatherModel();
@@ -147,7 +147,7 @@ namespace API
             
         }
 
-        public static string MD5(string input)
+        public string MD5(string input)
         {
             StringBuilder hash = new StringBuilder();
             MD5CryptoServiceProvider md5provider = new MD5CryptoServiceProvider();
@@ -271,6 +271,48 @@ namespace API
             {
                 return false;
             }
+        }
+        
+        public Discount EditDiscount(Discount discount)
+        {
+            return new Discount();
+        }
+        public string RemoveDiscount(string id)
+        {
+            return "";
+        }
+        public List<Discount> GetDiscounts()
+        {
+            List<Discount> discounts = new List<Discount>();
+            Discount record;
+            string get_records = "SELECT Title, DiscountDescription, DateValid,Value, ID FROM dbo.discount WHERE order by DateValid asc;";
+            using (SqlConnection sqlServer = new SqlConnection(connection))
+            {
+                sqlServer.Open();
+                using (SqlCommand selectData = new SqlCommand(get_records, sqlServer))
+                {
+                    try
+                    {
+                        SqlDataReader read = selectData.ExecuteReader();
+                        while (read.Read())
+                        {
+                            record = new Discount();
+                            record.Title = read.GetString(0);
+                            record.Description = read.GetString(1);
+                            record.DateValid = read.GetDateTime(2);
+                            record.Value = read.GetDouble(3);
+                            discounts.Add(record);
+                        }
+                        read.Close();
+                    }
+                    catch
+                    {
+                        throw new Exception();
+                    }
+                }
+                sqlServer.Close();
+            }
+            return discounts;
         }
 
     }
