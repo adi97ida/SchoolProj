@@ -163,7 +163,7 @@ namespace API
         public Staff Login(string username, string password)
         {
             string status = "";
-            string select = $"select Username,Full_Name,Email from dbo.user where Username='{username}' and Password='{password}' LIMIT 1";
+            string select = $"select Username,Full_Name,Email from dbo.users where Username='{username}' and Password='{password}' LIMIT 1";
             Staff user = null;
 
             using (SqlConnection sqlServer = new SqlConnection(connection))
@@ -196,7 +196,7 @@ namespace API
 
         public string CreateStaffUser(Staff new_user)
         {
-            string insert = "insert into dbo.user(Username, Password, Full_Name, Email) values (@Username, @Password, @Full_Name, @Email)";
+            string insert = "insert into dbo.users(Username, Password, Full_Name, Email) values (@Username, @Password, @Full_Name, @Email)";
 
             using (SqlConnection sqlServer = new SqlConnection(connection))
             {
