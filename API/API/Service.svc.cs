@@ -164,8 +164,7 @@ namespace API
         {
             string status = "";
             string select = $"select Username,Full_Name,Email from dbo.user where Username='{username}' and Password='{password}' LIMIT 1";
-            Staff user = new Staff();
-            user.Password = "";
+            Staff user = null;
 
             using (SqlConnection sqlServer = new SqlConnection(connection))
             {
@@ -175,10 +174,13 @@ namespace API
                     try
                     {
                         SqlDataReader read = selectData.ExecuteReader();
-                        read.Read();
-                        user.Username = read.GetString(0);
-                        user.Full_Name = read.GetString(1);
-                        user.Email = read.GetString(2);
+                        if (read.Read())
+                        {
+                            user = new Staff();
+                            user.Username = read.GetString(0);
+                            user.Full_Name = read.GetString(1);
+                            user.Email = read.GetString(2);
+                        }
                         read.Close();
                     }
                     catch
