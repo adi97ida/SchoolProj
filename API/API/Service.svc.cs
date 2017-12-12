@@ -194,7 +194,7 @@ namespace API
 
         public string CreateStaffUser(Staff new_user)
         {
-            const string insert = "insert into dbo.user(Username, Password, Full_Name, Email) values (@Username, @Password, @Full_Name, @Email)";
+            string insert = "insert into dbo.user(Username, Password, Full_Name, Email) values (@Username, @Password, @Full_Name, @Email)";
 
             using (SqlConnection sqlServer = new SqlConnection(connection))
             {
@@ -258,12 +258,19 @@ namespace API
 
             WeatherModel weather = new WeatherModel();
             IRepository repo = new Repository();
+            try
+            {
+                weather = repo.GetWeatherData(key, GetBy.CityName, city);
 
-            weather = repo.GetWeatherData(key, GetBy.CityName, city);
 
-            if (weather.current.precip_mm > 0.1)
-                return true;
-            else return false;
+                if (weather.current.precip_mm > 0.1)
+                    return true;
+                else return false;
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
         }
 
     }

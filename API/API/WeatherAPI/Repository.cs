@@ -74,16 +74,23 @@ namespace APIXULib
             new MediaTypeWithQualityHeaderValue("application/json"));
 
             // List data response.
-            HttpResponseMessage response = client.GetAsync(urlParameters).Result;  // Blocking call!
-            if (response.IsSuccessStatusCode)
+            try
             {
-                // Parse the response body. Blocking!
-                //return response.Content.ReadAsAsync<WeatherModel>().Result;
-                var weather = response.Content.ReadAsAsync<WeatherModel>().Result;
-                return weather;
-               
+                HttpResponseMessage response = client.GetAsync(urlParameters).Result;  // Blocking call!
+                if (response.IsSuccessStatusCode)
+                {
+                    // Parse the response body. Blocking!
+                    //return response.Content.ReadAsAsync<WeatherModel>().Result;
+                    var weather = response.Content.ReadAsAsync<WeatherModel>().Result;
+                    return weather;
+
+                }
+                else
+                {
+                    return new WeatherModel();
+                }
             }
-            else
+            catch(Exception ex)
             {
                 return new WeatherModel();
             }

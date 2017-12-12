@@ -82,7 +82,7 @@ namespace APIXULib
         public string wind_dir { get; set; }
         public double pressure_mb { get; set; }
         public double pressure_in { get; set; }
-        public double precip_mm { get; set; }
+        public double precip_mm { get ; set; }
         public double precip_in { get; set; }
         public int humidity { get; set; }
         public int cloud { get; set; }
