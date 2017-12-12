@@ -23,7 +23,7 @@ namespace API.Tests
         {
             var service = new API.Service();
             var dataPack = new DataPack();
-            var staff = service.Login("usertest", "pass");
+            var staff = service.Login("usertest", Service.MD5("pass"));
             if (staff == null) Assert.Fail();
             Assert.AreEqual("usertest", staff.Username);
         }
@@ -38,8 +38,24 @@ namespace API.Tests
         public void GetDataByPeriodTest()
         {
             var service = new API.Service();
-            var dataPack = new DataPack() { Humidity = 54, IR1 = 1042, IR2 = 34, Temperature = 25, Name = "testSensor" };
-            Assert.AreEqual("OK", service.SaveData(dataPack));
+            var dataList = service.GetDataByPeriod(DateTime.Now.AddDays(-15) );
+            if (dataList == null) Assert.Fail();
+
         }
+        [TestMethod()]
+        public void CustomersInsidePer24HTest()
+        {
+            var service = new API.Service();
+            var list = service.CustomersInsidePer24H(DateTime.Now.AddDays(-8), DateTime.Now.AddDays(-7));
+        }
+        
+        [TestMethod()]
+        public void GetWeatherTest()
+        {
+            var service = new API.Service();
+            var dataPack = new DataPack() { Humidity = 54, IR1 = 1042, IR2 = 34, Temperature = 25, Name = "testSensor" };
+            var list = service.GetWeather("Roskilde", APIXULib.MethodType.Current, APIXULib.Days.Eight);
+        }
+
     }
 }

@@ -92,7 +92,7 @@ namespace APIXULib
             }
             catch(Exception ex)
             {
-                return new WeatherModel();
+                throw new Exception();
             }
         }
     }

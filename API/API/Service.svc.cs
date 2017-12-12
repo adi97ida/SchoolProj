@@ -22,9 +22,9 @@ namespace API
     {
         public string connection = "Server=tcp:monitoringsys.database.windows.net,1433;Initial Catalog=MonitoringSystemm;Persist Security Info=False;User ID=sysadmin;Password=Admin123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
 
-        public List<DataPack> GetDataByPeriod(DateTime? dateStart, DateTime? dateEnd)
+        public List<DataPack> GetDataByPeriod(DateTime? dateStart = null, DateTime? dateEnd = null)
         {
-            List<DataPack> result = null;
+            List<DataPack> result = new List<DataPack>();
             string selectString = (dateStart != null || dateEnd != null)? $"select * from dbo.sensor_data where CurrentTime >= '{dateStart ?? new DateTime(2000,1,1)}' AND CurrentTime <= '{dateEnd ?? DateTime.Now}' order by CurrentTime asc": "select * from dbo.sensor_data order by CurrentTime asc";
             using (SqlConnection sqlServer = new SqlConnection(connection))
             {
@@ -41,7 +41,7 @@ namespace API
                             pack = new DataPack();
                             pack.CurrentTime = reader.GetDateTime(0);
                             pack.IR1 = reader.GetInt32(1);
-                            pack.IR1 = reader.GetInt32(2);
+                            pack.IR2 = reader.GetInt32(2);
                             pack.Temperature = reader.GetDouble(3);
                             pack.Humidity = reader.GetInt32(4);
                             pack.Name = reader.GetString(5);
@@ -51,7 +51,7 @@ namespace API
                     }
                     catch (Exception ex)
                     {
-                        
+                        throw new Exception(ex.Message);
                     }
                 }
                 return result;
@@ -128,7 +128,7 @@ namespace API
             }
             return "ERROR";
         }
-        public WeatherModel GetWeather(string city, MethodType type, Days? day)
+        public WeatherModel GetWeather(string city, MethodType type, Days? day )
         {
 
             Days days = Days.One;
@@ -162,8 +162,7 @@ namespace API
 
         public Staff Login(string username, string password)
         {
-            string status = "";
-            string select = $"select Username,Full_Name,Email from dbo.users where Username='{username}' and Password='{password}' LIMIT 1";
+            string select = $"select Username,Full_Name,Email from dbo.users where Username='{username}' and Password='{password}' ";
             Staff user = null;
 
             using (SqlConnection sqlServer = new SqlConnection(connection))
@@ -183,9 +182,8 @@ namespace API
                         }
                         read.Close();
                     }
-                    catch
+                    catch(Exception ex)
                     {
-                        status = "ERROR";
                     }
                 }
                 sqlServer.Close();
@@ -245,9 +243,9 @@ namespace API
                         }
                         read.Close();
                     }
-                    catch
+                    catch(Exception ex)
                     {
-                        
+                        throw new Exception();
                     }
                 }
                 sqlServer.Close();
