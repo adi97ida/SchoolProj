@@ -11,6 +11,7 @@ using APIXULib;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.ServiceModel;
+using System.Security.Cryptography;
 
 namespace API
 {
@@ -87,10 +88,12 @@ namespace API
 
         public string SaveData(DataPack data)
         {
-            const string insert = "insert into dbo.sensor_data(CurrentTime, IRSensor1, IRSensor2, TempSensor, HumiditySensor, Name) values (@CurrentTime, @IRSensor1, @IRSensor2, @TempSensor, @HumiditySensor, @Name)";
+            bool is_rain = CheckForRain("Roskilde");
+            const string insert = "insert into dbo.sensor_data(CurrentTime, IRSensor1, IRSensor2, TempSensor, HumiditySensor, Name, PeopleInside, IsRainy) values (@CurrentTime, @IRSensor1, @IRSensor2, @TempSensor, @HumiditySensor, @Name, @PeopleInside, @IsRainy)";
             int last_customer_count = 0;
             if (data.Name != "STOP")
                 last_customer_count = GetLastCustomerNo();
+            last_customer_count = (last_customer_count + data.IR1) - data.IR2;
             using (SqlConnection sqlServer = new SqlConnection(connection))
             {
                 sqlServer.Open();
@@ -105,9 +108,10 @@ namespace API
                     if(data.Name=="STOP")
                         insertData.Parameters.AddWithValue("@PeopleInside", 0);
                     else
-                        insertData.Parameters.AddWithValue("@PeopleInside", (last_customer_count+data.IR1)-data.IR2);
+                        insertData.Parameters.AddWithValue("@PeopleInside", last_customer_count);
                     
                     insertData.Parameters.AddWithValue("@Name", data.Name);
+                    insertData.Parameters.AddWithValue("@IsRainy", is_rain);
 
 
                     try
@@ -142,11 +146,79 @@ namespace API
                 return weather = repo.GetWeatherData(key, GetBy.CityName, city, days);
             
         }
-        
+
+        public static string MD5(string input)
+        {
+            StringBuilder hash = new StringBuilder();
+            MD5CryptoServiceProvider md5provider = new MD5CryptoServiceProvider();
+            byte[] bytes = md5provider.ComputeHash(new UTF8Encoding().GetBytes(input));
+
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                hash.Append(bytes[i].ToString("x2"));
+            }
+            return hash.ToString();
+        }
+
         public Staff Login(string username, string password)
         {
-            const string select = "select * from dbo.user where username=''";
-            return new Staff();
+            string status = "";
+            string select = $"select Username,Full_Name,Email from dbo.user where Username='{username}' and Password='{password}' LIMIT 1";
+            Staff user = new Staff();
+            user.Password = "";
+
+            using (SqlConnection sqlServer = new SqlConnection(connection))
+            {
+                sqlServer.Open();
+                using (SqlCommand selectData = new SqlCommand(select, sqlServer))
+                {
+                    try
+                    {
+                        SqlDataReader read = selectData.ExecuteReader();
+                        read.Read();
+                        user.Username = read.GetString(0);
+                        user.Full_Name = read.GetString(1);
+                        user.Email = read.GetString(2);
+                        read.Close();
+                    }
+                    catch
+                    {
+                        status = "ERROR";
+                    }
+                }
+                sqlServer.Close();
+            }
+
+            return user;
+        }
+
+        public string CreateStaffUser(Staff new_user)
+        {
+            const string insert = "insert into dbo.user(Username, Password, Full_Name, Email) values (@Username, @Password, @Full_Name, @Email)";
+
+            using (SqlConnection sqlServer = new SqlConnection(connection))
+            {
+                sqlServer.Open();
+
+                using (SqlCommand insertData = new SqlCommand(insert, sqlServer))
+                {
+                    insertData.Parameters.AddWithValue("@Username", new_user.Username);
+                    insertData.Parameters.AddWithValue("@Password", MD5(new_user.Password));
+                    insertData.Parameters.AddWithValue("@Full_Name", new_user.Full_Name);
+                    insertData.Parameters.AddWithValue("@Email", new_user.Email);
+                    try
+                    {
+                        if (insertData.ExecuteNonQuery() != 0)
+                            return string.Format("OK");
+
+                    }
+                    catch (Exception ex)
+                    {
+                        return string.Format("STOP: " + ex.Message);
+                    }
+                }
+            }
+            return "ERROR";
         }
 
         public List<Customers24H> CustomersInsidePer24H(DateTime dateStart, DateTime dateEnd)
@@ -180,7 +252,19 @@ namespace API
             }
             return c_today;
         }
+         private bool CheckForRain(string city)
+        {
+            string key = "b244896d727f4cf28aa113256170412";
 
+            WeatherModel weather = new WeatherModel();
+            IRepository repo = new Repository();
+
+            weather = repo.GetWeatherData(key, GetBy.CityName, city);
+
+            if (weather.current.precip_mm > 0.1)
+                return true;
+            else return false;
+        }
 
     }
 }

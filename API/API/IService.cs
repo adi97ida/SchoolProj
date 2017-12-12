@@ -27,6 +27,9 @@ namespace API
         Staff Login(string username, string password);
         [OperationContract]
         List<Customers24H> CustomersInsidePer24H(DateTime dateStart, DateTime dateEnd);
+        [OperationContract]
+        string CreateStaffUser(Staff new_user);
+        
 
     }
     [DataContract]
