@@ -14,6 +14,9 @@ namespace API.Tests
         [TestMethod()]
         public void SaveDataTest()
         {
+            DataPack data = new DataPack();
+            
+            
             Assert.Fail();
         }
     }

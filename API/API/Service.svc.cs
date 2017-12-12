@@ -163,9 +163,8 @@ namespace API
         public Staff Login(string username, string password)
         {
             string status = "";
-            string select = $"select Username,Full_Name,Email from dbo.user where Username='{username}' and Password='{password}' LIMIT 1";
-            Staff user = new Staff();
-            user.Password = "";
+            string select = $"select Username,Full_Name,Email from dbo.users where Username='{username}' and Password='{password}'";
+            Staff user;
 
             using (SqlConnection sqlServer = new SqlConnection(connection))
             {
@@ -176,14 +175,21 @@ namespace API
                     {
                         SqlDataReader read = selectData.ExecuteReader();
                         read.Read();
-                        user.Username = read.GetString(0);
-                        user.Full_Name = read.GetString(1);
-                        user.Email = read.GetString(2);
+                        if (read.HasRows)
+                        {
+                            user = new Staff();
+                            user.Username = read.GetString(0);
+                            user.Full_Name = read.GetString(1);
+                            user.Email = read.GetString(2);
+                        }
+                        else
+                            user = new Staff();
+
                         read.Close();
                     }
                     catch
                     {
-                        status = "ERROR";
+                        throw new Exception();
                     }
                 }
                 sqlServer.Close();
@@ -194,7 +200,7 @@ namespace API
 
         public string CreateStaffUser(Staff new_user)
         {
-            string insert = "insert into dbo.user(Username, Password, Full_Name, Email) values (@Username, @Password, @Full_Name, @Email)";
+            string insert = "insert into dbo.users(Username, Password, Full_Name, Email) values (@Username, @Password, @Full_Name, @Email)";
 
             using (SqlConnection sqlServer = new SqlConnection(connection))
             {
